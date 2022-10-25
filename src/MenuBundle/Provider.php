@@ -13,10 +13,11 @@ declare(strict_types=1);
 
 namespace SolidInvoice\MenuBundle;
 
+use Knp\Menu\FactoryInterface;
+use Knp\Menu\ItemInterface;
 use Knp\Menu\Provider\MenuProviderInterface;
 use SolidInvoice\MenuBundle\Builder\BuilderInterface;
 use SolidInvoice\MenuBundle\Builder\MenuBuilder;
-use SolidInvoice\MenuBundle\Storage\MenuStorageInterface;
 use SplPriorityQueue;
 
 /**
@@ -25,33 +26,33 @@ use SplPriorityQueue;
 class Provider implements MenuProviderInterface
 {
     /**
-     * @var MenuStorageInterface
+     * @var array<string, SplPriorityQueue<int, MenuBuilder>>
      */
-    protected $storage;
+    protected array $list = [];
 
-    public function __construct(MenuStorageInterface $storage)
+    private FactoryInterface $factory;
+
+    public function __construct(FactoryInterface $factory)
     {
-        $this->storage = $storage;
+        $this->factory = $factory;
     }
 
-    /**
-     * Gets the storage for the specific menu.
-     *
-     * @param string $name
-     */
-    public function get($name, array $options = []): SplPriorityQueue
+    public function get(string $name, array $options = []): ItemInterface
     {
-        return $this->storage->get($name);
+        $root = $this->factory->createItem('root');
+
+        assert($root instanceof MenuItem);
+
+        foreach ($this->list[$name] as $builder) {
+            $builder->invoke($root, $options);
+        }
+
+        return $root;
     }
 
-    /**
-     * Checks if the storage has builders for the specified menu.
-     *
-     * @param string $name
-     */
-    public function has($name, array $options = []): bool
+    public function has(string $name, array $options = []): bool
     {
-        return $this->storage->has($name);
+        return $this->hasBuilder($name);
     }
 
     /**
@@ -64,6 +65,15 @@ class Provider implements MenuProviderInterface
     {
         $builder = new MenuBuilder($class, $method);
 
-        $this->storage->get($name)->insert($builder, $priority);
+        if (! $this->hasBuilder($name)) {
+            $this->list[$name] = new SplPriorityQueue();
+        }
+
+        $this->list[$name]->insert($builder, $priority);
+    }
+
+    private function hasBuilder(string $name): bool
+    {
+        return isset($this->list[$name]);
     }
 }

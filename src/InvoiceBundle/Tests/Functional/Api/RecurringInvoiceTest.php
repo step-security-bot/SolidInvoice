@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace SolidInvoice\InvoiceBundle\Tests\Functional\Api;
 
 use DateTimeInterface;
-use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use SolidInvoice\ApiBundle\Test\ApiTestCase;
 use SolidInvoice\ClientBundle\DataFixtures\ORM\LoadData;
 use SolidInvoice\InstallBundle\Test\EnsureApplicationInstalled;
@@ -24,14 +24,17 @@ use SolidInvoice\InstallBundle\Test\EnsureApplicationInstalled;
  */
 class RecurringInvoiceTest extends ApiTestCase
 {
-    use FixturesTrait;
     use EnsureApplicationInstalled;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->loadFixtures([
+        self::bootKernel();
+
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+
+        $databaseTool->loadFixtures([
             LoadData::class,
             \SolidInvoice\InvoiceBundle\DataFixtures\ORM\LoadData::class,
         ], true);
@@ -66,20 +69,10 @@ class RecurringInvoiceTest extends ApiTestCase
 
         self::assertSame([
             'id' => 2,
-            'status' => 'draft',
             'client' => '/api/clients/1',
             'frequency' => '* * * * *',
             'dateStart' => date('Y-m-d\T00:00:00+02:00'),
             'dateEnd' => null,
-            'total' => '$90.00',
-            'baseTotal' => '$100.00',
-            'tax' => '$0.00',
-            'discount' => [
-                'type' => 'percentage',
-                'value' => 10,
-            ],
-            'terms' => null,
-            'notes' => null,
             'items' => [
                 [
                     'id' => 3,
@@ -93,6 +86,16 @@ class RecurringInvoiceTest extends ApiTestCase
             'users' => [
                 '/api/contacts/1',
             ],
+            'status' => 'draft',
+            'total' => '$90.00',
+            'baseTotal' => '$100.00',
+            'tax' => '$0.00',
+            'discount' => [
+                'type' => 'percentage',
+                'value' => 10,
+            ],
+            'terms' => null,
+            'notes' => null,
         ], $result);
     }
 
@@ -109,20 +112,10 @@ class RecurringInvoiceTest extends ApiTestCase
 
         self::assertSame([
             'id' => 1,
-            'status' => 'draft',
             'client' => '/api/clients/1',
             'frequency' => '* * * * *',
             'dateStart' => '2012-01-01T00:00:00+02:00',
             'dateEnd' => null,
-            'total' => '$100.00',
-            'baseTotal' => '$100.00',
-            'tax' => '$0.00',
-            'discount' => [
-                'type' => null,
-                'value' => null,
-            ],
-            'terms' => null,
-            'notes' => null,
             'items' => [
                 [
                     'id' => 2,
@@ -136,6 +129,16 @@ class RecurringInvoiceTest extends ApiTestCase
             'users' => [
                 '/api/contacts/1',
             ],
+            'status' => 'draft',
+            'total' => '$100.00',
+            'baseTotal' => '$100.00',
+            'tax' => '$0.00',
+            'discount' => [
+                'type' => null,
+                'value' => null,
+            ],
+            'terms' => null,
+            'notes' => null,
         ], $data);
     }
 
@@ -163,20 +166,10 @@ class RecurringInvoiceTest extends ApiTestCase
 
         self::assertSame([
             'id' => 1,
-            'status' => 'draft',
             'client' => '/api/clients/1',
             'frequency' => '5 * * * *',
             'dateStart' => '2012-01-01T00:00:00+02:00',
             'dateEnd' => null,
-            'total' => '$90.00',
-            'baseTotal' => '$100.00',
-            'tax' => '$0.00',
-            'discount' => [
-                'type' => 'percentage',
-                'value' => 10,
-            ],
-            'terms' => null,
-            'notes' => null,
             'items' => [
                 [
                     'id' => 3,
@@ -190,6 +183,16 @@ class RecurringInvoiceTest extends ApiTestCase
             'users' => [
                 '/api/contacts/1',
             ],
+            'status' => 'draft',
+            'total' => '$90.00',
+            'baseTotal' => '$100.00',
+            'tax' => '$0.00',
+            'discount' => [
+                'type' => 'percentage',
+                'value' => 10,
+            ],
+            'terms' => null,
+            'notes' => null,
         ], $data);
     }
 }

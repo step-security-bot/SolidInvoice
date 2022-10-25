@@ -27,8 +27,8 @@ use SolidWorx\FormHandler\Options;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * @see \SolidInvoice\UserBundle\Tests\Form\Handler\UserAddFormHandlerTest
@@ -37,20 +37,14 @@ class UserAddFormHandler implements FormHandlerResponseInterface, FormHandlerInt
 {
     use SaveableTrait;
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    private RouterInterface $router;
 
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $userPasswordEncoder;
+    private UserPasswordHasherInterface $userPasswordHasher;
 
-    public function __construct(UserPasswordEncoderInterface $userPasswordEncoder, RouterInterface $router)
+    public function __construct(UserPasswordHasherInterface $userPasswordHasher, RouterInterface $router)
     {
         $this->router = $router;
-        $this->userPasswordEncoder = $userPasswordEncoder;
+        $this->userPasswordHasher = $userPasswordHasher;
     }
 
     public function getForm(FormFactoryInterface $factory, Options $options)
@@ -75,7 +69,7 @@ class UserAddFormHandler implements FormHandlerResponseInterface, FormHandlerInt
      */
     public function onSuccess(FormRequest $form, $data): ?Response
     {
-        $data->setPassword($this->userPasswordEncoder->encodePassword($data, $data->getPlainPassword()));
+        $data->setPassword($this->userPasswordHasher->hashPassword($data, $data->getPlainPassword()));
         $data->eraseCredentials();
         $this->save($data);
 

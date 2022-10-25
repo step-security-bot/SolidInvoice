@@ -19,7 +19,6 @@ use Symfony\Component\Panther\Client;
 use Symfony\Component\Panther\PantherTestCase;
 use function count;
 use function file_exists;
-use function getenv;
 use function realpath;
 use function rename;
 use function unlink;
@@ -43,6 +42,19 @@ class InstallationTest extends PantherTestCase
         if (file_exists($configFile . '.tmp')) {
             rename($configFile . '.tmp', $configFile);
         }
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $dbFile = realpath(static::$defaultOptions['webServerDir'] . '/../') . '/var/db/sqlite.db';
+
+        if (file_exists($dbFile)) {
+            unlink($dbFile);
+        }
+
+        unset($_SERVER['locale'], $_ENV['locale'], $_SERVER['installed'], $_ENV['installed']);
     }
 
     public function testItRedirectsToInstallationPage(): void
@@ -75,6 +87,7 @@ class InstallationTest extends PantherTestCase
                     'config_step[database_config][driver]' => 'pdo_mysql',
                     'config_step[database_config][host]' => getenv('database_host') ?: '127.0.0.1',
                     'config_step[database_config][user]' => 'root',
+                    'config_step[database_config][password]' => '',
                     'config_step[database_config][name]' => 'solidinvoice_test',
                 ]
             );

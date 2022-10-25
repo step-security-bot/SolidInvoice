@@ -19,22 +19,25 @@ use SolidInvoice\CoreBundle\Templating\Template;
 use SolidInvoice\FormBundle\Test\FormHandlerTestCase;
 use SolidInvoice\UserBundle\Entity\User;
 use SolidInvoice\UserBundle\Form\Handler\UserAddFormHandler;
-use SolidWorx\FormHandler\FormHandlerInterface;
 use SolidWorx\FormHandler\FormRequest;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class UserAddFormHandlerTest extends FormHandlerTestCase
+final class UserAddFormHandlerTest extends FormHandlerTestCase
 {
+    /**
+     * @var RouterInterface&M\MockInterface
+     */
     private $router;
 
-    private $userPasswordEncoder;
+    private UserPasswordHasher $userPasswordHasher;
 
-    private $password;
+    private string $password;
 
-    private $user;
+    private User $user;
 
     protected function setUp(): void
     {
@@ -43,20 +46,24 @@ class UserAddFormHandlerTest extends FormHandlerTestCase
         $this->user = new User();
         $this->password = $this->faker->password;
         $this->router = M::mock(RouterInterface::class);
-        $this->userPasswordEncoder = M::mock(UserPasswordEncoderInterface::class);
+        $this->userPasswordHasher = new UserPasswordHasher(new PasswordHasherFactory([
+            User::class => [
+                'algorithm' => 'auto',
+            ],
+        ]));
     }
 
-    /**
-     * @return string|FormHandlerInterface
-     */
-    public function getHandler()
+    public function getHandler(): UserAddFormHandler
     {
-        $handler = new UserAddFormHandler($this->userPasswordEncoder, $this->router);
+        $handler = new UserAddFormHandler($this->userPasswordHasher, $this->router);
         $handler->setDoctrine($this->registry);
 
         return $handler;
     }
 
+    /**
+     * @return array{user: User}
+     */
     protected function getHandlerOptions(): array
     {
         return [
@@ -66,11 +73,6 @@ class UserAddFormHandlerTest extends FormHandlerTestCase
 
     protected function beforeSuccess(FormRequest $form, $data): void
     {
-        $this->userPasswordEncoder->shouldReceive('encodePassword')
-            ->once()
-            ->with($data, $this->password)
-            ->andReturn(password_hash($this->password, PASSWORD_DEFAULT));
-
         $this->router->shouldReceive('generate')
             ->once()
             ->with('_users_list')
@@ -94,6 +96,9 @@ class UserAddFormHandlerTest extends FormHandlerTestCase
         self::assertInstanceOf(Template::class, $formRequest->getResponse());
     }
 
+    /**
+     * @return array{user: array{username: string, email: string, plainPassword: array{first: string, second: string}, mobile: string, enabled: bool}}
+     */
     public function getFormData(): array
     {
         return [

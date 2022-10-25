@@ -13,17 +13,12 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\SchemaException;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use SolidInvoice\SettingsBundle\Form\Type\MailTransportType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 final class Version20200 extends AbstractMigration implements ContainerAwareInterface
 {
@@ -34,28 +29,31 @@ final class Version20200 extends AbstractMigration implements ContainerAwareInte
         return \PHP_VERSION_ID < 80000;
     }
 
-    /**
-     * @var Schema
-     */
-    private $schema;
-
     public function up(Schema $schema): void
     {
+        $schema->getTable('payments')->changeColumn('details', [
+            'type' => new JsonType(),
+            'notnull' => true,
+        ]);
+
         $this->connection->insert(
             'app_config',
             [
                 'setting_key' => 'invoice/watermark',
                 'setting_value' => true,
                 'description' => 'Display a watermark on the invoice with the status',
-                'field_type' => CheckboxType::class],
+                'field_type' => CheckboxType::class
+            ],
         );
+
         $this->connection->insert(
             'app_config',
             [
                 'setting_key' => 'quote/watermark',
                 'setting_value' => true,
                 'description' => 'Display a watermark on the quote with the status',
-                'field_type' => CheckboxType::class],
+                'field_type' => CheckboxType::class
+            ],
         );
     }
 

@@ -15,15 +15,17 @@ namespace SolidInvoice\UserBundle\Tests\Repository;
 
 use DateTimeInterface;
 use Doctrine\ORM\QueryBuilder;
-use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
-use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Faker\Generator;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use SolidInvoice\CoreBundle\Test\Traits\FakerTestTrait;
+use SolidInvoice\InstallBundle\Test\EnsureApplicationInstalled;
 use SolidInvoice\UserBundle\DataFixtures\ORM\LoadData;
 use SolidInvoice\UserBundle\Entity\User;
 use SolidInvoice\UserBundle\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -31,16 +33,20 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UserRepositoryTest extends KernelTestCase
 {
+    use EnsureApplicationInstalled;
     use FakerTestTrait;
-    use FixturesTrait;
-    use RefreshDatabaseTrait;
 
+    /**
+     * @var Generator
+     */
     private $faker;
 
     /**
      * @var UserRepository
      */
     private $repository;
+
+    protected AbstractDatabaseTool $databaseTool;
 
     protected function setUp(): void
     {
@@ -49,6 +55,10 @@ class UserRepositoryTest extends KernelTestCase
         $kernel = self::bootKernel();
         $this->repository = $kernel->getContainer()->get('doctrine')->getRepository(User::class);
         $this->faker = $this->getFaker();
+
+        self::bootKernel();
+
+        $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
     }
 
     public function testSave(): void
@@ -66,7 +76,7 @@ class UserRepositoryTest extends KernelTestCase
 
     public function testRefreshUser(): void
     {
-        $executor = $this->loadFixtures([LoadData::class], true);
+        $executor = $this->databaseTool->loadFixtures([LoadData::class], true);
         $user = $executor->getReferenceRepository()->getReference('user2');
         $newUser = $this->repository->refreshUser($user);
         self::assertSame($user->getId(), $newUser->getId());
@@ -109,15 +119,15 @@ class UserRepositoryTest extends KernelTestCase
 
     public function testLoadUserByUsername(): void
     {
-        $this->loadFixtures([LoadData::class], true);
+        $this->databaseTool->loadFixtures([LoadData::class], true);
         self::assertInstanceOf(User::class, $this->repository->loadUserByUsername('test2'));
         self::assertInstanceOf(User::class, $this->repository->loadUserByUsername('test2@test.com'));
     }
 
     public function testLoadUserByUsernameWithDisabledUser(): void
     {
-        $this->loadFixtures([LoadData::class], true);
-        $this->expectException(UsernameNotFoundException::class);
+        $this->databaseTool->loadFixtures([LoadData::class], true);
+        $this->expectException(UserNotFoundException::class);
         $this->expectExceptionMessage('User "test1" does not exist.');
         $this->repository->loadUserByUsername('test1');
     }
@@ -125,8 +135,8 @@ class UserRepositoryTest extends KernelTestCase
     public function testLoadUserByUsernameWithInvalidUser(): void
     {
         $username = $this->faker->userName;
-        $this->loadFixtures([LoadData::class], true);
-        $this->expectException(UsernameNotFoundException::class);
+        $this->databaseTool->loadFixtures([LoadData::class], true);
+        $this->expectException(UserNotFoundException::class);
         $this->expectExceptionMessage('User "' . $username . '" does not exist.');
         $this->repository->loadUserByUsername($username);
     }
@@ -135,7 +145,7 @@ class UserRepositoryTest extends KernelTestCase
     {
         self::assertSame(0, $this->repository->getUserCount());
 
-        $this->loadFixtures([LoadData::class], true);
+        $this->databaseTool->loadFixtures([LoadData::class], true);
 
         self::assertSame(2, $this->repository->getUserCount());
     }
@@ -148,7 +158,7 @@ class UserRepositoryTest extends KernelTestCase
 
     public function testDeleteUsers(): void
     {
-        $executor = $this->loadFixtures([LoadData::class], true);
+        $executor = $this->databaseTool->loadFixtures([LoadData::class], true);
 
         $userIds = [$executor->getReferenceRepository()->getReference('user1')->getId(), $executor->getReferenceRepository()->getReference('user2')->getId()];
 
@@ -158,7 +168,7 @@ class UserRepositoryTest extends KernelTestCase
 
     public function testClearUserConfirmationToken(): void
     {
-        $executor = $this->loadFixtures([LoadData::class], true);
+        $executor = $this->databaseTool->loadFixtures([LoadData::class], true);
         /** @var User $user1 */
         $user1 = $executor->getReferenceRepository()->getReference('user1');
 

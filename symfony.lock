@@ -31,18 +31,6 @@
     "composer/package-versions-deprecated": {
         "version": "1.10.99"
     },
-    "dama/doctrine-test-bundle": {
-        "version": "4.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "4.0",
-            "ref": "56eaa387b5e48ebcc7c95a893b47dfa1ad51449c"
-        },
-        "files": [
-            "config/packages/test/dama_doctrine_test_bundle.yaml"
-        ]
-    },
     "dbrekelmans/bdi": {
         "version": "1.0"
     },
@@ -140,9 +128,6 @@
     "doctrine/persistence": {
         "version": "1.3.8"
     },
-    "doctrine/reflection": {
-        "version": "1.2.1"
-    },
     "doctrine/sql-formatter": {
         "version": "1.1.1"
     },
@@ -151,9 +136,6 @@
     },
     "egulias/email-validator": {
         "version": "2.1.18"
-    },
-    "fig/link-util": {
-        "version": "1.1.1"
     },
     "fp/klarna-invoice": {
         "version": "0.1.2"
@@ -172,9 +154,6 @@
         "files": [
             "config/routes/fos_js_routing.yaml"
         ]
-    },
-    "fzaninotto/faker": {
-        "version": "v1.9.1"
     },
     "gedmo/doctrine-extensions": {
         "version": "v2.4.41"
@@ -253,9 +232,6 @@
     "monolog/monolog": {
         "version": "2.1.1"
     },
-    "moontoast/math": {
-        "version": "1.2.1"
-    },
     "mpdf/mpdf": {
         "version": "v8.0.7"
     },
@@ -287,14 +263,8 @@
     "nikic/php-parser": {
         "version": "v4.7.0"
     },
-    "ocramius/proxy-manager": {
-        "version": "2.2.3"
-    },
     "pagerfanta/pagerfanta": {
         "version": "v2.4.1"
-    },
-    "paragonie/constant_time_encoding": {
-        "version": "v2.4.0"
     },
     "paragonie/random_compat": {
         "version": "v9.99.99"
@@ -355,12 +325,6 @@
     },
     "php-webdriver/webdriver": {
         "version": "1.8.2"
-    },
-    "phpseclib/bcmath_compat": {
-        "version": "1.0.5"
-    },
-    "phpseclib/phpseclib": {
-        "version": "2.0.28"
     },
     "phpstan/extension-installer": {
         "version": "1.0.5"
@@ -489,9 +453,6 @@
     "symfony/css-selector": {
         "version": "v5.1.3"
     },
-    "symfony/debug": {
-        "version": "v4.4.11"
-    },
     "symfony/debug-bundle": {
         "version": "4.1",
         "recipe": {
@@ -593,9 +554,6 @@
     },
     "symfony/http-kernel": {
         "version": "v4.4.14"
-    },
-    "symfony/inflector": {
-        "version": "v5.1.3"
     },
     "symfony/intl": {
         "version": "v4.4.11"
@@ -760,9 +718,6 @@
             "config/packages/routing.yaml",
             "config/routes.yaml"
         ]
-    },
-    "symfony/security": {
-        "version": "v4.4.11"
     },
     "symfony/security-bundle": {
         "version": "4.4",
@@ -961,11 +916,5 @@
     },
     "willdurand/negotiation": {
         "version": "v2.3.1"
-    },
-    "zendframework/zend-code": {
-        "version": "3.4.1"
-    },
-    "zendframework/zend-eventmanager": {
-        "version": "3.2.1"
     }
 }

@@ -52,7 +52,7 @@ jobs:
         run: composer install --no-scripts
 
       - name: Ensure lock file is up to date
-        run: composer update --lock
+        run: composer update --lock --no-scripts
 
       - name: Run composer normalize
         run: composer normalize --no-update-lock --diff --dry-run
@@ -68,7 +68,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v3.4.1
+      - uses: actions/setup-node@v3.5.1
         with:
           node-version: 14
 

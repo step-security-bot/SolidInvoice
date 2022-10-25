@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace SolidInvoice\InvoiceBundle\Tests\Functional\Api;
 
-use Liip\TestFixturesBundle\Test\FixturesTrait;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use SolidInvoice\ApiBundle\Test\ApiTestCase;
 use SolidInvoice\ClientBundle\DataFixtures\ORM\LoadData;
 use SolidInvoice\InstallBundle\Test\EnsureApplicationInstalled;
@@ -23,14 +23,17 @@ use SolidInvoice\InstallBundle\Test\EnsureApplicationInstalled;
  */
 class InvoiceTest extends ApiTestCase
 {
-    use FixturesTrait;
     use EnsureApplicationInstalled;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->loadFixtures([
+        self::bootKernel();
+
+        $databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
+
+        $databaseTool->loadFixtures([
             LoadData::class,
             \SolidInvoice\InvoiceBundle\DataFixtures\ORM\LoadData::class,
         ], true);
@@ -62,18 +65,8 @@ class InvoiceTest extends ApiTestCase
 
         self::assertSame([
             'id' => 2,
-            'status' => 'draft',
             'client' => '/api/clients/1',
-            'total' => '$90.00',
-            'baseTotal' => '$100.00',
             'balance' => '$90.00',
-            'tax' => '$0.00',
-            'discount' => [
-                'type' => 'percentage',
-                'value' => 10,
-            ],
-            'terms' => null,
-            'notes' => null,
             'due' => null,
             'paidDate' => null,
             'items' => [
@@ -89,6 +82,16 @@ class InvoiceTest extends ApiTestCase
             'users' => [
                 '/api/contacts/1',
             ],
+            'status' => 'draft',
+            'total' => '$90.00',
+            'baseTotal' => '$100.00',
+            'tax' => '$0.00',
+            'discount' => [
+                'type' => 'percentage',
+                'value' => 10,
+            ],
+            'terms' => null,
+            'notes' => null,
         ], $result);
     }
 
@@ -105,18 +108,8 @@ class InvoiceTest extends ApiTestCase
 
         self::assertSame([
             'id' => 1,
-            'status' => 'draft',
             'client' => '/api/clients/1',
-            'total' => '$100.00',
-            'baseTotal' => '$100.00',
             'balance' => '$100.00',
-            'tax' => '$0.00',
-            'discount' => [
-                'type' => null,
-                'value' => null,
-            ],
-            'terms' => null,
-            'notes' => null,
             'due' => null,
             'paidDate' => null,
             'items' => [
@@ -132,6 +125,16 @@ class InvoiceTest extends ApiTestCase
             'users' => [
                 '/api/contacts/1',
             ],
+            'status' => 'draft',
+            'total' => '$100.00',
+            'baseTotal' => '$100.00',
+            'tax' => '$0.00',
+            'discount' => [
+                'type' => null,
+                'value' => null,
+            ],
+            'terms' => null,
+            'notes' => null,
         ], $data);
     }
 
@@ -158,18 +161,8 @@ class InvoiceTest extends ApiTestCase
 
         self::assertSame([
             'id' => 1,
-            'status' => 'draft',
             'client' => '/api/clients/1',
-            'total' => '$90.00',
-            'baseTotal' => '$100.00',
             'balance' => '$90.00',
-            'tax' => '$0.00',
-            'discount' => [
-                'type' => 'percentage',
-                'value' => 10,
-            ],
-            'terms' => null,
-            'notes' => null,
             'due' => null,
             'paidDate' => null,
             'items' => [
@@ -185,6 +178,16 @@ class InvoiceTest extends ApiTestCase
             'users' => [
                 '/api/contacts/1',
             ],
+            'status' => 'draft',
+            'total' => '$90.00',
+            'baseTotal' => '$100.00',
+            'tax' => '$0.00',
+            'discount' => [
+                'type' => 'percentage',
+                'value' => 10,
+            ],
+            'terms' => null,
+            'notes' => null,
         ], $data);
     }
 }

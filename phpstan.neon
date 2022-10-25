@@ -8,8 +8,10 @@ parameters:
     bootstrapFiles:
         - vendor/autoload.php
         - vendor/bin/.phpunit/phpunit-8.5-0/vendor/autoload.php
-        - vendor/doctrine/dbal/lib/Doctrine/DBAL/Types/ConversionException.php
     excludePaths:
         - src/CoreBundle/Tests/Fixtures/file.php
     symfony:
-        container_xml_path: var/cache/dev/srcSolidInvoice_KernelDevDebugContainer.xml
+        container_xml_path: var/cache/dev/SolidInvoice_KernelDevDebugContainer.xml
+
+    stubFiles:
+        - tests/stub.php
