@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\JsonType;
 use Doctrine\Migrations\AbstractMigration;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
